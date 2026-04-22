@@ -45,7 +45,7 @@ const replayBuffer: Transition[] = [];
 
 function makeStateKey(r: number, c: number, nextTargetIdx: number): string
 {
-  // peut etre faire une politique de contournement de mur idk
+  // peut etre faire une politique de contournement de mur idk 
   return `${r},${c}|t${nextTargetIdx}`;
 }
 
