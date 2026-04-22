@@ -55,7 +55,7 @@ function getValues(table: Record<string, number[]>, key: string): number[]
   return table[key];
 }
 
-// choix d'action, A pour choisir, B pour évaluer
+// choix d'action, A pour choisir, B pour evaluer
 function chooseAction(key: string, epsilon: number): number
 {
   if (Math.random() < epsilon) return Math.floor(Math.random() * 4);
@@ -63,7 +63,7 @@ function chooseAction(key: string, epsilon: number): number
   return vals.indexOf(Math.max(...vals));
 }
 
-// Mise à jour Double Q : on alterne aléatoirement quelle table est mise à jour
+// Mise à jour Double Q : on alterne aleatoirement quelle table est mise a jour
 function updateQ(
   stateKey: string, action: number, reward: number,
   nextKey: string, done: boolean
