@@ -7,9 +7,9 @@ export default defineConfig({
     host: true,
     port: 5173,
     hmr: {
-      protocol: 'ws',    // On repasse en 'ws' (non-sécurisé)
+      protocol: 'ws',
       host: 'localhost',
-      port: 5173,        // On s'aligne sur le port de Vite
+      port: 5173,
     },
   },
 })
