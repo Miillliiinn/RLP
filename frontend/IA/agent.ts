@@ -2,10 +2,8 @@ import React from "react";
 import type { GridHandle } from "../map/grid";
 import { CellType } from "../map/cell";
 import { parseMap } from "./utils";
-
-// Types
-
-export interface MapData {
+export interface MapData
+{
   start: [number, number] | null;
   exit: [number, number] | null;
   collectibles: [number, number][];
@@ -17,30 +15,23 @@ export interface MapData {
   qTable?: Record<string, number[]>;
 }
 
-interface Transition {
+interface Transition
+{
   stateKey:     string;
   action:       number;
   reward:       number;
   nextStateKey: string;
   done:         boolean;
 }
-
-// Configuration 
-
 const ALPHA          = 0.15;
 const GAMMA          = 0.95;
 const EPSILON_START  = 0.4;
 const EPSILON_MIN    = 0.05;
 const HISTORY_SIZE   = 20;
+const REPLAY_CAPACITY = 50000;
+const REPLAY_BATCH    = 64;
+const REPLAY_START    = 200;
 
-// Experience Replay
-const REPLAY_CAPACITY = 50000;// taille max du buffer
-const REPLAY_BATCH    = 64;// transitions rejouées par step
-const REPLAY_START    = 200;// n'apprend depuis le buffer qu'après N transitions
-
-// etat Global 
-
-// Double Q-learning
 export let qTableA: Record<string, number[]> = {};
 export let qTableB: Record<string, number[]> = {};
 export let qTable  = qTableA;
@@ -52,14 +43,14 @@ let posHistory: string[]              = [];
 export let visitFreq:  Record<string, number> = {};
 const replayBuffer: Transition[] = [];
 
-// Qtable helpers 
-
-function makeStateKey(r: number, c: number, nextTargetIdx: number): string {
+function makeStateKey(r: number, c: number, nextTargetIdx: number): string
+{
   // peut etre faire une politique de contournement de mur idk
   return `${r},${c}|t${nextTargetIdx}`;
 }
 
-function getValues(table: Record<string, number[]>, key: string): number[] {
+function getValues(table: Record<string, number[]>, key: string): number[]
+{
   if (!table[key]) table[key] = [0, 0, 0, 0];
   return table[key];
 }
@@ -94,8 +85,6 @@ function updateQ(
   current[action] += ALPHA * (target - current[action]);
 }
 
-// Experience Replay
-
 function pushTransition(t: Transition) {
   replayBuffer.push(t);
   if (replayBuffer.length > REPLAY_CAPACITY) replayBuffer.shift();
@@ -103,8 +92,6 @@ function pushTransition(t: Transition) {
 
 function replayBatch() {
   if (replayBuffer.length < REPLAY_START) return;
-
-  // Pioche REPLAY_BATCH transitions aléatoires
   for (let i = 0; i < REPLAY_BATCH; i++) {
     const idx = Math.floor(Math.random() * replayBuffer.length);
     const { stateKey, action, reward, nextStateKey, done } = replayBuffer[idx];
@@ -189,7 +176,7 @@ export function loadSessionFromLocalStorage(): any {
   if (!saved) return null;
   const data = JSON.parse(saved);
   qTableA = data.q_table || {};
-  qTableB = { ...qTableA }; // on sync les deux tables au chargement
+  qTableB = { ...qTableA }; //sync les deux tables au chargement
   return data;
 }
 
@@ -236,13 +223,11 @@ export function startMovement(
     initialMap, startX, startY, [...collectiblesList], exitR, exitC
   );
   console.log("[IA] Ordre optimal :", optimalOrder);
-
-  // Reset Q-tables et buffer pour neww map
+  
   qTableA = {}; qTableB = {};
   replayBuffer.length = 0;
   totalSteps = 0;
 
-  // Init episode
   let curX = startX, curY = startY;
   let prevX = startX, prevY = startY;
   let picked         = new Set<string>();
@@ -254,33 +239,30 @@ export function startMovement(
   moveInterval = setInterval(() => {
     if (!gridRef.current) return;
     const map = gridRef.current.getMap();
-
-    // index du prochain collectible cible dans l'ordre optimal
     const nextTargetIdx = optimalOrder.findIndex(k => !picked.has(k));
     // -1 si tous ramassés
-    const targetPhase   = nextTargetIdx === -1 ? totalCollectibles : nextTargetIdx;
-    const stateKey      = makeStateKey(curX, curY, targetPhase);
-
-    // 1 Choix de l'action
+    const targetPhase = nextTargetIdx === -1 ? totalCollectibles : nextTargetIdx;
+    const stateKey = makeStateKey(curX, curY, targetPhase);
+    
     const action = chooseAction(stateKey, currentEpsilon);
-
     let nr = curX, nc = curY;
     if (action === 0) nr--;
     if (action === 1) nr++;
     if (action === 2) nc--;
     if (action === 3) nc++;
-
-    // 2 recompense
+    // recompense
     let reward = -1;
     const targetCell = map[nr]?.[nc];
     const nextPicked = new Set(picked);
     let done = false;
 
-    if (!targetCell || targetCell === "wall") {
+    if (!targetCell || targetCell === "wall")
+    {
       reward = -15;
       nr = curX; nc = curY;
 
-    } else if (targetCell === "collectible") {
+    } else if (targetCell === "collectible")
+    {
       const cellKey = `${nr},${nc}`;
       if (!picked.has(cellKey)) {
         reward = 300;
@@ -288,8 +270,10 @@ export function startMovement(
         gridRef.current!.consumeCell(nr, nc);
       }
 
-    } else if (targetCell === "exit") {
-      if (picked.size === totalCollectibles) {
+    } else if (targetCell === "exit")
+    {
+      if (picked.size === totalCollectibles)
+      {
         reward = 1000;
         done   = true;
       } else {
@@ -297,36 +281,36 @@ export function startMovement(
       }
     }
 
-    // 3 reward shaping
-    if (nr !== curX || nc !== curY) {
-      if (nextTargetIdx !== -1) {
-        // Phase collecte : guider vers le prochain dans l'ordre optimal
+    //reward shaping
+    if (nr !== curX || nc !== curY)
+    {
+      if (nextTargetIdx !== -1)
+      {
         const [tr, tc] = optimalOrder[nextTargetIdx].split(",").map(Number);
         const db = distCache[`${curX},${curY}`]?.[`${tr},${tc}`] ?? Infinity;
         const da = distCache[`${nr},${nc}`]?.[`${tr},${tc}`] ?? Infinity;
         if (db !== Infinity && da !== Infinity) reward += (db - da) * 4;
 
         // Signal faible vers la sortie si déjà vue
-        if (exitSeen && exitR >= 0) {
+        if (exitSeen && exitR >= 0)
+        {
           const db2 = distCache[`${curX},${curY}`]?.[`${exitR},${exitC}`] ?? Infinity;
           const da2 = distCache[`${nr},${nc}`]?.[`${exitR},${exitC}`] ?? Infinity;
           if (db2 !== Infinity && da2 !== Infinity) reward += (db2 - da2) * 1;
         }
-      } else if (exitR >= 0) {
-        // Phase sortie : signal fort
+      } else if (exitR >= 0)
+      {
         const db = distCache[`${curX},${curY}`]?.[`${exitR},${exitC}`] ?? Infinity;
         const da = distCache[`${nr},${nc}`]?.[`${exitR},${exitC}`] ?? Infinity;
         if (db !== Infinity && da !== Infinity) reward += (db - da) * 6;
       }
     }
-
-    //memoire sortie
-    if (targetCell === "exit" && !exitSeen) {
+    if (targetCell === "exit" && !exitSeen)
+    {
       exitSeen = true;
       console.log(`[IA] Sortie mémorisée en [${exitR},${exitC}]`);
     }
-    //  4 Anti-cycle
-    
+    //Anti-cycle
     // aller-retour
     if (nr === prevX && nc === prevY) {
       reward -= 60; 
@@ -349,15 +333,13 @@ export function startMovement(
     if (posHistory.length > HISTORY_SIZE) posHistory.shift();
 
     // apprentissage
-    const nextPhase    = nextPicked.size === totalCollectibles ? totalCollectibles
-                       : optimalOrder.findIndex(k => !nextPicked.has(k));
+    const nextPhase = nextPicked.size === totalCollectibles ? totalCollectibles : optimalOrder.findIndex(k => !nextPicked.has(k));
     const nextStateKey = makeStateKey(nr, nc, nextPhase === -1 ? totalCollectibles : nextPhase);
     updateQ(stateKey, action, reward, nextStateKey, done);
     pushTransition({ stateKey, action, reward, nextStateKey, done });
     replayBatch();
 
-    // 6 maj detat
-    prevX  = curX; // 👈 3. On enregistre d'où on vient
+    prevX  = curX; 
     prevY  = curY;
     curX   = nr;
     curY   = nc;
@@ -365,10 +347,10 @@ export function startMovement(
     gridRef.current.moveAgent(curX, curY);
     totalSteps++;
 
-    // 7 enleve du rng
+    //enleve du rng
     if (currentEpsilon > EPSILON_MIN) currentEpsilon *= 0.9998;
 
-    // 8 reset episode
+    //reset episode
     if (done)
     {
       count++;
