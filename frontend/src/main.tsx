@@ -1,4 +1,3 @@
-// main.tsx
 import React, { useRef } from 'react'
 import ReactDOM from 'react-dom/client'
 import Grid, { GridHandle } from '../map/grid' //
