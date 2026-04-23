@@ -98,7 +98,7 @@ DOMAIN_NAME=example
 - Clone the repository:
 
 ```Bash
-git clone https://github.com/your-username/rlp.git
+git clone https://github.com/Miillliiinn/RLP.git
 ```
 - Go to the root of the project:
 ```Bash
