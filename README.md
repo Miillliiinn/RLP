@@ -13,7 +13,7 @@ _Project developed to study on autonomous agents and reinforcement learning deci
 RLP is an experimental visualization platform for __Reinforcement Learning__ integrated into an interactive grid environment. The goal is to train an agent to collect items and reach an exit optimally using modern __AI algorithms__.
 
 <p align="center">
-  <img src="https://media.discordapp.net/attachments/1484981168104407040/1500512118078963913/RLP.png?ex=69f8b44f&is=69f762cf&hm=2d14a9c57d1c3e7ed2c3ff826fe8525576618768de86ec1435b9c20d752a3e99&=&format=webp&quality=lossless" width="600" alt="Reinforcement Learning Loop">
+  <img width="1187" height="896" alt="RLP" src="https://github.com/user-attachments/assets/18d26dba-6321-438f-a23f-5e515813d0c8" />
 </p>
 
 # 🚀 Features
