@@ -93,24 +93,6 @@ The AI does not simply walk at random; it utilizes graph theory algorithms to as
 -  Docker Compose >= 2.0
 -  Git
 
-- __Configuration__ (.env)
-
-- Create a .env file at the root of the project:
-```bash
-# Nginx / Domain
-DOMAIN_NAME=example
-```
-- Clone the repository:
-
-```Bash
-git clone https://github.com/Miillliiinn/RLP.git
-```
-- Go to the root of the project:
-```Bash
-make
-```
-- Access: Go to http://localhost:8080.
-
 # 🕹️ How to use?
 
 - Draw _'walls'_ (Wall tool █).
