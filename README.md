@@ -8,6 +8,11 @@ _This project has been created as a personal project_
 
 _Project developed to study on autonomous agents and reinforcement learning decision-making._
 
+# Link
+
+[Online](https://rlp-qgpq.onrender.com/)
+> **Note:** The project is hosted on Render's free tier. The instance automatically spins down after a period of inactivity. As a result, the first request may take up to 30 seconds to "wake up" the server.
+
 # 🤖 RLP: Reinforcement Learning & Pathfinding
 
 RLP is an experimental visualization platform for __Reinforcement Learning__ integrated into an interactive grid environment. The goal is to train an agent to collect items and reach an exit optimally using modern __AI algorithms__.
